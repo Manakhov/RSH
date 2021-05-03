@@ -24,6 +24,33 @@ typedef struct
 
 int main(void)
 {
+	int value = 0;
+	int value_prev = 0;
+	int value_blue = 0;
+	int value_red = 0;
+	int i = 0;
 	*((uint32_t *) 0x40023830) |= 1 | 4;
-	for(;;);
+	while(1)
+	{
+		if (GPIOC->IDR & 1 << 5)
+			value = value + 1;
+		    if (value > 3)
+		    	value = 0;
+		else if (GPIOC->IDR & 1 << 6)
+			value = value - 1;
+		    if (value < 0)
+		    	value = 3;
+        if (value != value_prev)
+        	value_blue = value / 2;
+        	value_red = value % 2;
+        	if (value_blue)
+        		GPIOC->ODR = GPIOC->ODR | 1 << 8;
+        	else
+        		GPIOC->ODR = GPIOC->ODR & !(1 << 8);
+        	if (value_red)
+        		GPIOC->ODR = GPIOC->ODR | 1 << 9;
+        	else
+			    GPIOC->ODR = GPIOC->ODR & !(1 << 9);
+        	for(i = 0; i < 1000000; i++);
+	}
 }
