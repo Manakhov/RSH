@@ -33,11 +33,11 @@ int main(void)
 	while(1)
 	{
 		if (GPIOC->IDR & 1 << 5)
-			value = value + 1;
+			value++;
 		    if (value > 3)
 		    	value = 0;
 		else if (GPIOC->IDR & 1 << 6)
-			value = value - 1;
+			value--;
 		    if (value < 0)
 		    	value = 3;
         if (value != value_prev)
@@ -51,6 +51,7 @@ int main(void)
         		GPIOC->ODR = GPIOC->ODR | 1 << 9;
         	else
 			    GPIOC->ODR = GPIOC->ODR & !(1 << 9);
+        	value_prev = value;
         	for(i = 0; i < 1000000; i++);
 	}
 }
