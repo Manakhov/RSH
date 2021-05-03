@@ -20,6 +20,7 @@ typedef struct
 } GPIO_TypeDef;
 
 #define GPIOC ((GPIO_TypeDef *) GPIOC_BASE)
+#define RED_LED *((uint32_t *)(PERIPH_BB_BASE + ((uint32_t)&(GPIOC->ODR) - PERIPH_BASE)*32 + 9*4))
 
 
 int main(void)
@@ -47,10 +48,7 @@ int main(void)
         		GPIOC->ODR = GPIOC->ODR | 1 << 8;
         	else
         		GPIOC->ODR = GPIOC->ODR & !(1 << 8);
-        	if (value_red)
-        		GPIOC->ODR = GPIOC->ODR | 1 << 9;
-        	else
-			    GPIOC->ODR = GPIOC->ODR & !(1 << 9);
+        	RED_LED = value_red;
         	value_prev = value;
         	for(i = 0; i < 1000000; i++);
 	}
