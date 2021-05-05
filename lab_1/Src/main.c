@@ -31,17 +31,24 @@ int main(void)
 	int value_red = 0;
 	int i = 0;
 	*((uint32_t *) 0x40023830) |= 1 | 4;
+	GPIOC->MODER = GPIOC->MODER | 1 << 16;
+	GPIOC->MODER = GPIOC->MODER | 1 << 18;
 	while(1)
 	{
-		if (GPIOC->IDR & 1 << 5)
+		if (!(GPIOC->IDR & 1 << 5))
+		{
 			value++;
 		    if (value > 3)
 		    	value = 0;
-		else if (GPIOC->IDR & 1 << 6)
+		}
+		else if (!(GPIOC->IDR & 1 << 6))
+		{
 			value--;
 		    if (value < 0)
 		    	value = 3;
-        if (value != value_prev)
+		}
+		if (value != value_prev)
+		{
         	value_blue = value / 2;
         	value_red = value % 2;
         	if (value_blue)
@@ -51,5 +58,6 @@ int main(void)
         	RED_LED = value_red;
         	value_prev = value;
         	for(i = 0; i < 1000000; i++);
+		}
 	}
 }
