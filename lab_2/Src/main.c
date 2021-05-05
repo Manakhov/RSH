@@ -65,5 +65,6 @@ int main(void)
 	RCC->CFGR |= RCC_CFGR_PPRE1 & RCC_CFGR_PPRE1_DIV4;
 	// APB2_Prescaler = 2
 	RCC->CFGR |= RCC_CFGR_PPRE2 & RCC_CFGR_PPRE2_DIV2;
-
+	// enable IRQ
+	NVIC_EnableIRQ(SysTick_IRQn);
 }
