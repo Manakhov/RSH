@@ -28,22 +28,23 @@ void SysTick_Handler(void)
 
 int main(void)
 {
-	RCC->CR = RCC->CR | 1 << 16;
+	RCC->CR |= RCC_CR_PLLON;
 	while(1)
 	{
-		if (RCC->CR & 1 << 17)
+		if (RCC->CR & RCC_CR_PLLRDY)
 			break;
 	}
-	RCC->CR = RCC->CR | 0 << 0;
+	RCC->CR |= RCC_CR_HSEON;
 	while(1)
 	{
-		if (RCC->CR & 1 << 1)
+		if (RCC->CR & RCC_CR_HSERDY)
 			break;
 	}
-	RCC->CR = RCC->CR | 1 << 24;
+	RCC->CR &= ~RCC_CR_HSION;
 	while(1)
 	{
-		if (RCC->CR & 1 << 25)
+		if (RCC->CR & RCC_CR_HSIRDY)
 			break;
 	}
+
 }
