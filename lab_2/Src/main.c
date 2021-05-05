@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "stm32f446xx.h"
 
+
 #define HSE 7200000
 #define PLLM 4
 #define PLLN 350
@@ -19,7 +20,30 @@
 #define SysTicks HCLK/SysTicksClk
 
 
+void SysTick_Handler(void)
+{
+
+}
+
+
 int main(void)
 {
-	for(;;);
+	RCC->CR = RCC->CR | 1 << 16;
+	while(1)
+	{
+		if (RCC->CR & 1 << 17)
+			break;
+	}
+	RCC->CR = RCC->CR | 0 << 0;
+	while(1)
+	{
+		if (RCC->CR & 1 << 1)
+			break;
+	}
+	RCC->CR = RCC->CR | 1 << 24;
+	while(1)
+	{
+		if (RCC->CR & 1 << 25)
+			break;
+	}
 }
