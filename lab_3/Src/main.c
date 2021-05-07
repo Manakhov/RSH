@@ -36,6 +36,12 @@ void SysTick_Handler(void)
 }
 
 
+void USART2_Handler(void)
+{
+
+}
+
+
 int main(void)
 {
 	// set LATENCY
@@ -82,7 +88,14 @@ int main(void)
 	GPIOA->AFR |= GPIO_AFRL_AFRL3_1;
 	// set BAUDRATE
 	USART2->BRR = APB1/BAUDRATE;
-
+	// USART2 on
+	USART2->CR1 |= USART_CR1_UE;
+	USART2->CR1 |= USART_CR1_TE;
+	USART2->CR1 |= USART_CR1_RE;
+	// interrupts on
+	USART2->CR1 |= USART_CR1_TXEIE;
+	USART2->CR1 |= USART_CR1_RXNEIE;
+	NVIC_EnableIRQ(USART2_IRQn);
 	//run while
 	while(1);
 }
