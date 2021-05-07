@@ -38,7 +38,14 @@ void SysTick_Handler(void)
 
 void USART2_Handler(void)
 {
+	if (USART2->SR & USART_SR_TXE)
+	{
 
+	}
+	else if (USART2->SR & USART_SR_RNXE)
+	{
+
+	}
 }
 
 
