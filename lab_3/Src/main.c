@@ -18,6 +18,7 @@
 #define APB2_Tim APB2*APB2_TimPrescaler
 #define SysTicksClk 6000
 #define SysTicks HCLK/SysTicksClk
+#define BAUDRATE 115200
 
 
 void SysTick_Handler(void)
@@ -69,6 +70,19 @@ int main(void)
 	// GPIOC on
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 	GPIOC->MODER |= GPIO_MODER_MODER8_0;
+	// USART on
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+	// GPIOA on
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+	// AF MODE on
+	GPIOA->MODER |= GPIO_MODER_MODER2_1;
+	GPIOA->MODER |= GPIO_MODER_MODER3_1;
+	GPIOA->AFR |= GPIO_AFRL_AFRL2_1;
+	GPIOA->AFR |= GPIO_AFRL_AFRL3_0;
+	GPIOA->AFR |= GPIO_AFRL_AFRL3_1;
+	// set BAUDRATE
+	USART2->BRR = APB1/BAUDRATE;
+
 	//run while
 	while(1);
 }
