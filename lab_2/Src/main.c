@@ -2,16 +2,16 @@
 #include "stm32f446xx.h"
 
 
-#define HSE 7200000
-#define PLLM 4
-#define PLLN 350
-#define PLLP 6
+#define HSE 12000000
+#define PLLM 6
+#define PLLN 105
+#define PLLP 2
 #define AHB_Prescaler 1
 #define APB1_Prescaler 4
 #define APB1_TimPrescaler 2
 #define APB2_Prescaler 2
 #define APB2_TimPrescaler 2
-#define HCLK HSE/PLLM*PLLN/PLLP/AHB
+#define HCLK HSE/PLLM*PLLN/PLLP/AHB_Prescaler
 #define APB1 HCLK/APB1_Prescaler
 #define APB1_Tim APB1*APB1_TimPrescaler
 #define APB2 HCLK/APB2_Prescaler
@@ -22,7 +22,16 @@
 
 void SysTick_Handler(void)
 {
-
+	static int count = 0;
+	if (count > SysTicksClk)
+	{
+		if (GPIOC->ODR & GPIO_ODR_OD8)
+			GPIOC->ODR &= ~GPIO_ODR_OD8;
+		else
+			GPIOC->ODR |= GPIO_ODR_OD8;
+		count = 0;
+	}
+	count++;
 }
 
 
