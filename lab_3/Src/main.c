@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <math.h>
+#include <stdio.h>
 #include "stm32f446xx.h"
 
 
@@ -37,48 +38,54 @@ void SysTick_Handler(void)
 }
 
 
-void USART2_IRQHandler(void)
-{
-	static int count = 0;
-	static int d = 0;
-	static int i = 0;
-	int value = 0;
-	char sym;
-	if (USART2->SR & USART_SR_RXNE)
-	{
-		if (count == 3)
-			d = USART2->DR;
-		else if (count == 4)
-		{
-			i = USART2->DR;
-			value = d*10 + i;
-		}
-		else
-			sym = USART2->DR;
-		if (count > 4)
-			count = 0;
-		else
-			count++;
-	}
-}
-
-
-float sin_Tailor(int value, int number)
+double sin_Tailor(int value, int number)
 {
 	int count = 1;
 	int denom = 1;
 	int factor = 1;
-	float sin = 0.0;
+	double sin = 0.0;
 	for (count = 1; count < number; count++)
 	{
 		denom = denom * count;
 		if (count % 2)
 		{
-			sin = sin + factor*(float)pow(value, count)/denom;
+			sin = sin + factor*(double)pow(value, count)/denom;
 			factor = -factor;
 		}
 	}
 	return sin;
+}
+
+
+void USART2_IRQHandler(void)
+{
+	static int count_receive = 0;
+	static int count_transmit = 0;
+	static int d = 0;
+	static int i = 0;
+	int value_receive = 0;
+	double value_transmit = 0.0;
+	char sym;
+	static char result[] = "\nf(x)=**.***\r";
+	if (USART2->SR & USART_SR_RXNE)
+	{
+		if (count_receive == 3)
+			d = USART2->DR;
+		else if (count_receive == 4)
+		{
+			i = USART2->DR;
+			value_receive = d*10 + i;
+			value_transmit = sin_Tailor(value_receive, 10);
+			sprintf(result, "\nf(x)=%02.3f\r", value_transmit);
+			USART2->CR1 |= USART_CR1_TXEIE;
+		}
+		else
+			sym = USART2->DR;
+		if (count_receive > 4)
+			count_receive = 0;
+		else
+			count_receive++;
+	}
 }
 
 
@@ -133,7 +140,6 @@ int main(void)
 	USART2->CR1 |= USART_CR1_RE;
 	// interrupts on
 	USART2->CR1 |= USART_CR1_RXNEIE;
-//	USART2->CR1 |= USART_CR1_TXEIE;
 	NVIC_EnableIRQ(USART2_IRQn);
 	//run while
 	while(1);
