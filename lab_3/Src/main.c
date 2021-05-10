@@ -36,15 +36,26 @@ void SysTick_Handler(void)
 }
 
 
-void USART2_Handler(void)
+void USART2_IRQHandler(void)
 {
-	if (USART2->SR & USART_SR_TXE)
+	static int count = 0;
+	static int d = 0;
+	static int i = 0;
+	char sym;
+	if (USART2->SR & USART_SR_RXNE)
 	{
-
-	}
-	else if (USART2->SR & USART_SR_RNXE)
-	{
-
+		if (count == 3)
+			d = USART2->DR;
+		else if (count == 4)
+		{
+			i = USART2->DR;
+		}
+		else
+			sym = USART2->DR;
+		if (count > 4)
+			count = 0;
+		else
+			count++;
 	}
 }
 
