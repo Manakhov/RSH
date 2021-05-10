@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <math.h>
 #include "stm32f446xx.h"
 
 
@@ -41,6 +42,7 @@ void USART2_IRQHandler(void)
 	static int count = 0;
 	static int d = 0;
 	static int i = 0;
+	int value = 0;
 	char sym;
 	if (USART2->SR & USART_SR_RXNE)
 	{
@@ -49,6 +51,7 @@ void USART2_IRQHandler(void)
 		else if (count == 4)
 		{
 			i = USART2->DR;
+			value = d*10 + i;
 		}
 		else
 			sym = USART2->DR;
@@ -57,6 +60,25 @@ void USART2_IRQHandler(void)
 		else
 			count++;
 	}
+}
+
+
+float sin_Tailor(int value, int number)
+{
+	int count = 1;
+	int denom = 1;
+	int factor = 1;
+	float sin = 0.0;
+	for (count = 1; count < number; count++)
+	{
+		denom = denom * count;
+		if (count % 2)
+		{
+			sin = sin + factor*(float)pow(value, count)/denom;
+			factor = -factor;
+		}
+	}
+	return sin;
 }
 
 
