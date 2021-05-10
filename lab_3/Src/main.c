@@ -86,6 +86,19 @@ void USART2_IRQHandler(void)
 		else
 			count_receive++;
 	}
+	if (USART2->SR & USART_SR_TXE)
+	{
+		if (result[count_transmit] != '\0')
+		{
+			USART2->DR = result[count_transmit];
+			count_transmit++;
+		}
+		else
+		{
+			USART2->CR1 &= ~USART_CR1_TXEIE;
+			count_transmit = 0;
+		}
+	}
 }
 
 
