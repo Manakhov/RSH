@@ -4,8 +4,8 @@
 #include "stm32f446xx.h"
 
 
-#define HSE 12000000
-#define PLLM 6
+#define HSE 18000000 // 12000000
+#define PLLM 9 // 6
 #define PLLN 105
 #define PLLP 2
 #define AHB_Prescaler 1
@@ -41,15 +41,17 @@ void SysTick_Handler(void)
 double sin_Tailor(int value, int number)
 {
 	int count = 1;
+	int numer = 1;
 	int denom = 1;
 	int factor = 1;
 	double sin = 0.0;
 	for (count = 1; count < number; count++)
 	{
+		numer = numer * value;
 		denom = denom * count;
 		if (count % 2)
 		{
-			sin = sin + factor*(double)pow(value, count)/denom;
+			sin = sin + (double)factor*numer/denom;
 			factor = -factor;
 		}
 	}
@@ -65,28 +67,24 @@ void USART2_IRQHandler(void)
 	static int i = 0;
 	int value_receive = 0;
 	double value_transmit = 0.0;
-	char sym;
+	static char input[] = "Nx=**E";
 	static char result[] = "\nf(x)=**.***\r";
 	if (USART2->SR & USART_SR_RXNE)
 	{
-		if (count_receive == 3)
-			d = USART2->DR;
-		else if (count_receive == 4)
+		input[count_receive] = USART2->DR;
+		count_receive++;
+		if (count_receive > 5)
 		{
-			i = USART2->DR;
+			count_receive = 0;
+			d = input[3] - '0';
+			i = input[4] - '0';
 			value_receive = d*10 + i;
 			value_transmit = sin_Tailor(value_receive, 10);
 			sprintf(result, "\nf(x)=%02.3f\r", value_transmit);
 			USART2->CR1 |= USART_CR1_TXEIE;
 		}
-		else
-			sym = USART2->DR;
-		if (count_receive > 4)
-			count_receive = 0;
-		else
-			count_receive++;
 	}
-	if (USART2->SR & USART_SR_TXE)
+	if ((USART2->SR & USART_SR_TXE) & (USART2->CR1 & USART_CR1_TXEIE))
 	{
 		if (result[count_transmit] != '\0')
 		{
@@ -104,6 +102,7 @@ void USART2_IRQHandler(void)
 
 int main(void)
 {
+	SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));
 	// set LATENCY
 	FLASH->ACR |= 3 << FLASH_ACR_LATENCY_Pos;
 	// HSE on
